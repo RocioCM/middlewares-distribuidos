@@ -1,6 +1,5 @@
 target/
 output/
-install.sh
 
 #Ignore IntelliJ IDEA project files
 .idea/
@@ -19,10 +18,6 @@ bin/
 nbproject/
 **/nb-configuration.xml
 
-#Documentation
-docs/presentation/node_modules/
-/docs/_build
-
 dependency-reduced-pom.xml
 .flattened-pom.xml
 Teste.java
@@ -31,6 +26,3 @@ Test.java
 *.jar
 *.~lock*
 ~$*
-
-deploy.sh
-checkstyle.sh
