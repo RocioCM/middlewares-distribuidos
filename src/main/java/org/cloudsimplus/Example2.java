@@ -24,8 +24,7 @@
 package org.cloudsimplus;
 
 import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicySimple;
-import org.cloudbus.cloudsim.brokers.DatacenterBroker;
-import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
+import org.cloudbus.cloudsim.brokers.DatacenterBrokerHeuristic;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.cloudlets.CloudletSimple;
 import org.cloudbus.cloudsim.core.CloudSim;
@@ -77,7 +76,7 @@ public class Example2 {
     private static final int CLOUDLET_LENGTH = 10000;
 
     private final CloudSim simulation;
-    private DatacenterBroker broker0;
+    private DatacenterBrokerHeuristic broker0;
     private List<Vm> vmList;
     private List<Cloudlet> cloudletList;
     private Datacenter datacenter0;
@@ -98,7 +97,8 @@ public class Example2 {
 
         // Creates a broker that is a software acting on behalf a cloud customer to
         // manage his/her VMs and Cloudlets
-        broker0 = new DatacenterBrokerSimple(simulation);
+        broker0 = new DatacenterBrokerHeuristic(simulation);
+        broker0.setHeuristic(new SimulatedAnnealingHeuristic());
 
         vmList = createVms();
         cloudletList = createCloudlets();
