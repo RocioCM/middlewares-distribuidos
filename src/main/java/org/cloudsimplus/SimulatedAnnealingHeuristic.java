@@ -8,12 +8,12 @@ import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudsimplus.heuristics.CloudletToVmMappingHeuristic;
 import org.cloudsimplus.heuristics.CloudletToVmMappingSolution;
 
-public class SimulatedAnnealingHeuristic implements CloudletToVmMappingHeuristic  {
+public class SimulatedAnnealingHeuristic implements CloudletToVmMappingHeuristic {
 	private final int maxTime = 200;
 	private List<Cloudlet> cloudletList;
 	private List<Vm> vmList;
 	private double solveTime = 0;
-	private int searchesByIteration = 0;
+	private int searchesByIteration = 1;
 	private CloudletToVmMappingSolution bestSolution;
 	private CloudletToVmMappingSolution latestNeighbor;
 
@@ -25,7 +25,7 @@ public class SimulatedAnnealingHeuristic implements CloudletToVmMappingHeuristic
 	@Override
 	public int getRandomValue(int maxValue) {
 		Random rand = new Random();
-    int number = rand.nextInt(maxValue);
+		int number = rand.nextInt(maxValue);
 		return number;
 	}
 
@@ -35,7 +35,7 @@ public class SimulatedAnnealingHeuristic implements CloudletToVmMappingHeuristic
 		if (this.solveTime >= this.maxTime) {
 			stop = true;
 		} else if (true) {
-			// TODO: if solution is perfect return true. 
+			// TODO: if solution is perfect return true.
 			// "Perfect" means the largest task time.
 		}
 		return stop;
@@ -43,8 +43,9 @@ public class SimulatedAnnealingHeuristic implements CloudletToVmMappingHeuristic
 
 	@Override
 	public CloudletToVmMappingSolution getInitialSolution() {
-		// TODO: return all cloudlets in a single VM.
-		return null;
+		CloudletToVmMappingSolution initialSolution = new CloudletToVmMappingSolution(this);
+		// TODO: repartir parejo los cloudlets a las VMs.
+		return initialSolution;
 	}
 
 	@Override
@@ -54,10 +55,25 @@ public class SimulatedAnnealingHeuristic implements CloudletToVmMappingHeuristic
 
 	@Override
 	public CloudletToVmMappingSolution createNeighbor(CloudletToVmMappingSolution source) {
-		CloudletToVmMappingSolution neighbor = null;
-		// TODO: generate the neighbor.
+		CloudletToVmMappingSolution neighbor = new CloudletToVmMappingSolution(source);
+		// TODO: generate the neighbor. Probar opciones:
+		// 1. Tomar 1 random y moverlo a una vm random.
+		// 2. Tomar del más congestionado y llevar al menos.
 		this.latestNeighbor = neighbor;
 		return neighbor;
+	}
+
+	public Boolean acceptSolution() {
+		Boolean isNeighborBest = latestNeighbor.compareTo(bestSolution) >= 1;
+		if (isNeighborBest) {
+			return true;
+		}
+		double temperature = getAcceptanceProbability();
+		double randomNumber = getRandomValue(101) / 100;
+		if (randomNumber <= temperature) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -66,13 +82,8 @@ public class SimulatedAnnealingHeuristic implements CloudletToVmMappingHeuristic
 		while (!isToStopSearch()) {
 			solveTime++;
 			createNeighbor(bestSolution);
-			Boolean isNeighborBest = false;
-			if (!isNeighborBest) {
-				double temperature = getAcceptanceProbability();
-				double randomNumber = getRandomValue(101) / 100;
-				if (randomNumber <= temperature) {
-					bestSolution = latestNeighbor;
-				}
+			if (acceptSolution()) {
+				bestSolution = latestNeighbor;
 			}
 		}
 		return bestSolution;
