@@ -44,7 +44,6 @@ public class SimulatedAnnealingHeuristic implements CloudletToVmMappingHeuristic
 	@Override
 	public CloudletToVmMappingSolution getInitialSolution() {
 		CloudletToVmMappingSolution initialSolution = new CloudletToVmMappingSolution(this);
-		// TODO: repartir parejo los cloudlets a las VMs.
 		return initialSolution;
 	}
 
@@ -56,9 +55,7 @@ public class SimulatedAnnealingHeuristic implements CloudletToVmMappingHeuristic
 	@Override
 	public CloudletToVmMappingSolution createNeighbor(CloudletToVmMappingSolution source) {
 		CloudletToVmMappingSolution neighbor = new CloudletToVmMappingSolution(source);
-		// TODO: generate the neighbor. Probar opciones:
-		// 1. Tomar 1 random y moverlo a una vm random.
-		// 2. Tomar del más congestionado y llevar al menos.
+		neighbor.swapVmsOfTwoRandomSelectedMapEntries();
 		this.latestNeighbor = neighbor;
 		return neighbor;
 	}
