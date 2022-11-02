@@ -29,14 +29,20 @@ public class SimulatedAnnealingHeuristic implements CloudletToVmMappingHeuristic
 		return number;
 	}
 
+	private Vm getRandomVm() {
+		int id = getRandomValue(vmList.size());
+		return vmList.get(id);
+	}
+
 	@Override
 	public boolean isToStopSearch() {
 		Boolean stop = false;
 		if (this.solveTime >= this.maxTime) {
+			// Reached max iteration count.
 			stop = true;
-		} else if (true) {
-			// TODO: if solution is perfect return true.
-			// "Perfect" means the largest task time.
+		} else if (bestSolution.computeCostDiffOfAllVms() == 0) {
+			// Cloudlets are perfectly balanced between VMs.
+			stop = true;
 		}
 		return stop;
 	}
@@ -44,6 +50,8 @@ public class SimulatedAnnealingHeuristic implements CloudletToVmMappingHeuristic
 	@Override
 	public CloudletToVmMappingSolution getInitialSolution() {
 		CloudletToVmMappingSolution initialSolution = new CloudletToVmMappingSolution(this);
+		cloudletList
+				.forEach(cloudlet -> initialSolution.bindCloudletToVm(cloudlet, getRandomVm()));
 		return initialSolution;
 	}
 
@@ -61,7 +69,7 @@ public class SimulatedAnnealingHeuristic implements CloudletToVmMappingHeuristic
 	}
 
 	public Boolean acceptSolution() {
-		Boolean isNeighborBest = latestNeighbor.compareTo(bestSolution) >= 1;
+		Boolean isNeighborBest = latestNeighbor.compareTo(bestSolution) >= 0;
 		if (isNeighborBest) {
 			return true;
 		}
