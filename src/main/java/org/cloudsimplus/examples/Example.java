@@ -1,4 +1,4 @@
-package org.cloudsimplus;
+package org.cloudsimplus.examples;
 
 import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.brokers.DatacenterBroker;

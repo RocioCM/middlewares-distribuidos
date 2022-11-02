@@ -21,7 +21,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with CloudSim Plus. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cloudsimplus;
+package org.cloudsimplus.examples;
 
 import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerHeuristic;
@@ -30,6 +30,8 @@ import org.cloudbus.cloudsim.cloudlets.CloudletSimple;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.datacenters.Datacenter;
 import org.cloudbus.cloudsim.datacenters.DatacenterSimple;
+import org.cloudbus.cloudsim.distributions.ContinuousDistribution;
+import org.cloudbus.cloudsim.distributions.UniformDistr;
 import org.cloudbus.cloudsim.hosts.Host;
 import org.cloudbus.cloudsim.hosts.HostSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
@@ -46,7 +48,9 @@ import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelFull;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelStochastic;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
+import org.cloudsimplus.SimulatedAnnealingHeuristic;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
+import org.cloudsimplus.heuristics.CloudletToVmMappingSimulatedAnnealing;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +96,7 @@ public class Example2 {
     private static final int[] CLOUDLET_FILE_SIZE = { 1024, 2048, 512, 3036, 4096 };
     private static final int[] CLOUDLET_OUTPUT_SIZE = CLOUDLET_FILE_SIZE;
 
-    private final CloudSim simulation;
+    private CloudSim simulation;
     private DatacenterBrokerHeuristic broker0;
     private List<Vm> vmList;
     private List<Cloudlet> cloudletList;
@@ -116,6 +120,28 @@ public class Example2 {
         // manage his/her VMs and Cloudlets
         broker0 = new DatacenterBrokerHeuristic(simulation);
         broker0.setHeuristic(new SimulatedAnnealingHeuristic());
+
+        vmList = createVms();
+        cloudletList = createCloudlets();
+        broker0.submitVmList(vmList);
+        broker0.submitCloudletList(cloudletList);
+
+        simulation.start();
+
+        final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
+        new CloudletsTableBuilder(finishedCloudlets).build();
+
+        simulation2();
+    }
+
+    private void simulation2() {
+        simulation = new CloudSim();
+        datacenter0 = createDatacenter();
+
+        // Creates a broker that is a software acting on behalf a cloud customer to
+        // manage his/her VMs and Cloudlets
+        broker0 = new DatacenterBrokerHeuristic(simulation);
+        broker0.setHeuristic(new CloudletToVmMappingSimulatedAnnealing(1, new UniformDistr(0, 1)));
 
         vmList = createVms();
         cloudletList = createCloudlets();
