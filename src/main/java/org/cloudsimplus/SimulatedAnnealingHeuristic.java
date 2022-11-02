@@ -14,8 +14,8 @@ public class SimulatedAnnealingHeuristic implements CloudletToVmMappingHeuristic
 	private List<Vm> vmList;
 	private double solveTime = 0;
 	private int searchesByIteration = 1;
-	private CloudletToVmMappingSolution bestSolution;
-	private CloudletToVmMappingSolution latestNeighbor;
+	private SimulatedAnnealingSolution bestSolution;
+	private SimulatedAnnealingSolution latestNeighbor;
 
 	@Override
 	public double getAcceptanceProbability() {
@@ -48,8 +48,8 @@ public class SimulatedAnnealingHeuristic implements CloudletToVmMappingHeuristic
 	}
 
 	@Override
-	public CloudletToVmMappingSolution getInitialSolution() {
-		CloudletToVmMappingSolution initialSolution = new CloudletToVmMappingSolution(this);
+	public SimulatedAnnealingSolution getInitialSolution() {
+		SimulatedAnnealingSolution initialSolution = new SimulatedAnnealingSolution(this);
 		cloudletList
 				.forEach(cloudlet -> initialSolution.bindCloudletToVm(cloudlet, getRandomVm()));
 		return initialSolution;
@@ -62,7 +62,7 @@ public class SimulatedAnnealingHeuristic implements CloudletToVmMappingHeuristic
 
 	@Override
 	public CloudletToVmMappingSolution createNeighbor(CloudletToVmMappingSolution source) {
-		CloudletToVmMappingSolution neighbor = new CloudletToVmMappingSolution(source);
+		SimulatedAnnealingSolution neighbor = new SimulatedAnnealingSolution(source);
 		neighbor.swapVmsOfTwoRandomSelectedMapEntries();
 		this.latestNeighbor = neighbor;
 		return neighbor;
