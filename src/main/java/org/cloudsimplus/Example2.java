@@ -84,11 +84,13 @@ public class Example2 {
     private static final long HOST_BW = VM_BW * VMS * 4; // in Megabits/s
     private static final long HOST_STORAGE = VM_STORAGE * VMS * 4; // in Megabytes
 
-    private static final int CLOUDLETS = 14;
+    private static final int CLOUDLET_GROUPS = 5;
+    private static final int CLOUDLETS_PER_GROUP = 14;
+    private static final int CLOUDLETS = CLOUDLET_GROUPS * CLOUDLETS_PER_GROUP;
     private static final int CLOUDLET_PES = 2;
-    private static final int CLOUDLET_LENGTH = 10000;
-    private static final int CLOUDLET_FILE_SIZE = 1024;
-    private static final int CLOUDLET_OUTPUT_SIZE = 1024;
+    private static final int[] CLOUDLET_LENGTH = { 10000, 500, 5000, 2000, 1300 };
+    private static final int[] CLOUDLET_FILE_SIZE = { 1024, 2048, 512, 3036, 4096 };
+    private static final int[] CLOUDLET_OUTPUT_SIZE = CLOUDLET_FILE_SIZE;
 
     private final CloudSim simulation;
     private DatacenterBrokerHeuristic broker0;
@@ -185,14 +187,16 @@ public class Example2 {
         final List<Cloudlet> list = new ArrayList<>(CLOUDLETS);
         UtilizationModel utilization = new UtilizationModelStochastic(30);
         // UtilizationModel utilization = new UtilizationModelDynamic(30);
-        for (int c = 0; c < CLOUDLETS; c++) {
-            Cloudlet cloudlet = new CloudletSimple(c, CLOUDLET_LENGTH, CLOUDLET_PES)
-                    .setFileSize(CLOUDLET_FILE_SIZE)
-                    .setOutputSize(CLOUDLET_OUTPUT_SIZE)
-                    .setUtilizationModel(utilization);
-            list.add(cloudlet);
-        }
+        for (int g = 0; g < CLOUDLET_GROUPS; g++) {
 
+            for (int c = 0; c < CLOUDLETS_PER_GROUP; c++) {
+                Cloudlet cloudlet = new CloudletSimple(g * CLOUDLETS_PER_GROUP + c, CLOUDLET_LENGTH[g], CLOUDLET_PES)
+                        .setFileSize(CLOUDLET_FILE_SIZE[g])
+                        .setOutputSize(CLOUDLET_OUTPUT_SIZE[g])
+                        .setUtilizationModel(utilization);
+                list.add(cloudlet);
+            }
+        }
         return list;
     }
 }
