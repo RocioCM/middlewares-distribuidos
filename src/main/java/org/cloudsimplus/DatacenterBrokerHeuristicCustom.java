@@ -111,6 +111,8 @@ public class DatacenterBrokerHeuristicCustom {
      */
     private int createdHosts = 0;
 
+    private DatacenterBrokerHeuristic broker0;
+    
     public static void main(String[] args) {
         new DatacenterBrokerHeuristicCustom();
     }
@@ -118,7 +120,7 @@ public class DatacenterBrokerHeuristicCustom {
     /**
      * Default constructor where the simulation is built.
      */
-    private DatacenterBrokerHeuristicCustom() {
+    public DatacenterBrokerHeuristicCustom() {
         // Enables just some level of log messages.
         Log.setLevel(Level.WARN);
 
@@ -130,7 +132,7 @@ public class DatacenterBrokerHeuristicCustom {
 
         final Datacenter datacenter0 = createDatacenter();
 
-        DatacenterBrokerHeuristic broker0 = createBroker();
+        broker0 = createBroker();
 
         createAndSubmitVms(broker0);
         createAndSubmitCloudlets(broker0);
@@ -140,7 +142,7 @@ public class DatacenterBrokerHeuristicCustom {
         final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
         new CloudletsTableBuilder(finishedCloudlets).build();
 
-        print(broker0);
+        print();
     }
 
     private DatacenterBrokerHeuristic createBroker() {
@@ -169,8 +171,9 @@ public class DatacenterBrokerHeuristicCustom {
         heuristic = new SimulatedAnnealingHeuristic();
     }
 
-    private void print(final DatacenterBrokerHeuristic broker0) {
-        final double roundRobinMappingCost = computeRoundRobinMappingCost();
+    public double[] print() {
+        final CloudletToVmMappingSolution roundRobinSolution = computeRoundRobinMappingCost();
+        final double roundRobinMappingCost = roundRobinSolution.getCost();
         printSolution(
                 "Heuristic solution for mapping cloudlets to Vm's         ",
                 heuristic.getBestSolutionSoFar(), false);
@@ -186,6 +189,10 @@ public class DatacenterBrokerHeuristicCustom {
         System.out.printf("\t\tCooling Rate       : %18.6f%n", SA_COOLING_RATE);
         System.out.printf("\t\tCold Temperature   : %18.6f%n%n", SA_COLD_TEMPERATURE);
         System.out.println(getClass().getSimpleName() + " finished!");
+    
+
+        double[] results = {roundRobinSolution.getCost(), roundRobinSolution.getFitness(), heuristic.getBestSolutionSoFar().getCost(), heuristic.getBestSolutionSoFar().getFitness(), heuristic.getBestSolutionSoFar().getCost() * 100.0 / roundRobinMappingCost , broker0.getHeuristic().getSolveTime()};
+        return results;
     }
 
     /**
@@ -254,7 +261,7 @@ public class DatacenterBrokerHeuristicCustom {
                 .setUtilizationModelBw(utilizationDynamic);
     }
 
-    private double computeRoundRobinMappingCost() {
+    private CloudletToVmMappingSolution computeRoundRobinMappingCost() {
         final CloudletToVmMappingSolution roundRobinSolution = new CloudletToVmMappingSolution(heuristic);
         int i = 0;
         for (Cloudlet c : cloudletList) {
@@ -266,7 +273,7 @@ public class DatacenterBrokerHeuristicCustom {
         printSolution(
                 "Round robin solution used by DatacenterBrokerSimple class",
                 roundRobinSolution, false);
-        return roundRobinSolution.getCost();
+        return roundRobinSolution;
     }
 
     private void printSolution(
